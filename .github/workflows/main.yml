@@ -3,23 +3,30 @@ name: Portfolio Deployment
 on:
   push:
     branches:
-    - main
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v2
-
+    
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-
-    - name: Deploy static site to S3 bucket
+    
+    - name: Deploy to S3
       run: |
+        # Sync all files to S3
         aws s3 sync . s3://git-new-bucket --delete
+        
+        # Enable static website (if not already)
         aws s3 website s3://git-new-bucket --index-document index.html
+        
+        # Set cache control for better performance
+        aws s3 cp s3://git-new-bucket s3://git-new-bucket --recursive --metadata-directive REPLACE --cache-control "max-age=3600"
