@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -20,4 +20,6 @@ jobs:
         aws-region: us-east-1
 
     - name: Deploy static site to S3 bucket
-      run: aws s3 sync . s3://git-new-bucked --delete
+      run: |
+        aws s3 sync . s3://git-new-bucket --delete
+        aws s3 website s3://git-new-bucket --index-document index.html
